@@ -1,0 +1,263 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "3b1e37b4-ca01-42d0-a5c4-3d8f71a56826",
+      "name": "When clicking \"Test Workflow\"",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        40,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://xmlcalendar.ru/data/ru/2022/calendar.json",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "9aeb252c-0c14-4146-bfed-e49859a6b44d",
+      "name": "Получаем JSON",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        500,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://xmlcalendar.ru/data/ru/2022/calendar.csv",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "adfc8f68-9623-469a-b88d-880fb3639140",
+      "name": "Получаем CSV",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        500,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": true,
+              "value2": true
+            }
+          ]
+        }
+      },
+      "id": "334c25e4-55d4-4085-8034-9df4de62b1fc",
+      "name": "IF",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        440
+      ],
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "options": {
+          "readAsString": true
+        }
+      },
+      "id": "be2a149d-50a6-4058-bbab-bd8b0dce7247",
+      "name": "CSV to Json",
+      "type": "n8n-nodes-base.spreadsheetFile",
+      "typeVersion": 1,
+      "position": [
+        740,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "value": "={{ $json.year }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c4e66f9f-fde9-4fc7-b774-783580285a37",
+      "name": "SetJson",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1000,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "keepOnlySet": true,
+        "values": {
+          "string": [
+            {
+              "value": "={{$node[\"CSV to Json\"].json[\"Год/Месяц\"]}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "15c307fb-0203-44ab-8a17-5c0877e1fed8",
+      "name": "SetCSV",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        980,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "a9063cf6-29b6-48ee-a2ce-de57dd72d789",
+      "name": "Совпало",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        280
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "372a9538-8c11-438e-a105-7f0f59c245fc",
+      "name": "Не совпало",
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1,
+      "position": [
+        1600,
+        600
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking \"Test Workflow\"": {
+      "main": [
+        [
+          {
+            "node": "Получаем JSON",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Получаем CSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Получаем CSV": {
+      "main": [
+        [
+          {
+            "node": "CSV to Json",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Получаем JSON": {
+      "main": [
+        [
+          {
+            "node": "SetJson",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CSV to Json": {
+      "main": [
+        [
+          {
+            "node": "SetCSV",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetJson": {
+      "main": [
+        [
+          {
+            "node": "IF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SetCSV": {
+      "main": [
+        [
+          {
+            "node": "IF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF": {
+      "main": [
+        [
+          {
+            "node": "Совпало",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Не совпало",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b53154bc-a4b1-4c96-8cd3-9a52d1138e66",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "807f6d3ef80811b080fb9c44e68b78bf977707011f2e2858c4252ea8bc85f6f6"
+  },
+  "id": "WAbx35VvrbzCEnrk",
+  "tags": []
+}
